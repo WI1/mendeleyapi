@@ -222,15 +222,28 @@ class MendeleyBiblioDoc extends MendeleyDoc {
 	 *
 	 * @param string $documentId
 	 * 	sent by Mendeley in e.g. collections/*collectionId*
+	 * @param string $group_id
+	 * 	The group Id of the document
 	 */
-	public static function constructWithDocumentId($documentId) {
+	public static function constructWithDocumentId($documentId, $group_id) {
 		$that = new MendeleyBiblioDoc();
 		$mendeley = new Mendeley();
 
-		if($remote = $mendeley->get('documents/' . $documentId)) {
+
+			
+		//if($remote = $mendeley->get('documents/' . $documentId)) {
+//		if($remote = $mendeley->get('groups/1714645/'.$documentId)) {
+		    
+//		if($remote = $mendeley->get('documents/details/2c8d9cb0-6d00-11df-a2b2-0026b95e3eb7')) { hari
+//		  echo("<br> Remote: <br>");
+//		  print_r($remote); //hari
+    if($remote = $mendeley->get('groups/'.$group_id."/".$documentId)) {   
+		  
 			$localParams = array_keys(get_object_vars($that));
+						
 			$remoteParams = array_keys(get_object_vars($remote));
 			$match = array_intersect($localParams, $remoteParams);
+			
 			foreach($match as $name) {
 				if(!empty($remote->$name)) {
 					$that->$name = $remote->$name;
@@ -238,14 +251,16 @@ class MendeleyBiblioDoc extends MendeleyDoc {
 			}
 			$that->documentId = $documentId;
 		}
-
-		// authors are stored as objects in Mendeley and as strings in Biblio
+		
+    // authors are stored as objects in Mendeley and as strings in Biblio
 		if (isset($that->authors)) {
 			foreach ($that->authors as &$a) {
 				$a = implode(' ', array($a->forename, $a->surname));
 			}
 		}
-
+//  echo("<br> That: <br>");
+//  print_r($that); //hari
+		
 		return $that;
 	}
 
